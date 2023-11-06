@@ -1,6 +1,9 @@
 PROG = lzma.exe
 MY_CONSOLE = 1
 
+# CFLAGS = $(CFLAGS) -DZ7_ST
+
+
 CURRENT_OBJS = \
   $O\LzmaAlone.obj \
 
@@ -14,11 +17,13 @@ COMMON_OBJS = \
   $O\CRC.obj \
   $O\CrcReg.obj \
   $O\IntToString.obj \
+  $O\LzFindPrepare.obj \
   $O\MyString.obj \
   $O\MyVector.obj \
   $O\NewHandler.obj \
   $O\StringConvert.obj \
   $O\StringToInt.obj \
+  $O\Wildcard.obj \
 
 WIN_OBJS = \
   $O\FileIO.obj \
@@ -33,6 +38,7 @@ WIN_OBJS = \
   $O\FileStreams.obj \
   $O\FilterCoder.obj \
   $O\MethodProps.obj \
+  $O\StreamObjects.obj \
   $O\StreamUtils.obj \
 
 UI_COMMON_OBJS = \
@@ -55,6 +61,7 @@ C_OBJS = \
   $O\Threads.obj \
 
 !include "../../Crc.mak"
+!include "../../LzFindOpt.mak"
 !include "../../LzmaDec.mak"
 
 !include "../../7zip.mak"

@@ -34,8 +34,8 @@ bool CMemBlockManager::AllocateSpace_bool(size_t numBlocks)
 void CMemBlockManager::FreeSpace()
 {
   ::MidFree(_data);
-  _data = 0;
-  _headFree= 0;
+  _data = NULL;
+  _headFree= NULL;
 }
 
 void *CMemBlockManager::AllocateBlock()
@@ -67,7 +67,6 @@ HRes CMemBlockManagerMt::AllocateSpace(size_t numBlocks, size_t numNoLockBlocks)
     return E_OUTOFMEMORY;
   if (!CMemBlockManager::AllocateSpace_bool(numBlocks))
     return E_OUTOFMEMORY;
-  Semaphore.Close();
   // we need (maxCount = 1), if we want to create non-use empty Semaphore
   if (maxCount == 0)
     maxCount = 1;
@@ -75,12 +74,13 @@ HRes CMemBlockManagerMt::AllocateSpace(size_t numBlocks, size_t numNoLockBlocks)
   // printf("\n Synchro.Create() \n");
   WRes wres;
   #ifndef _WIN32
+  Semaphore.Close();
   wres = Synchro.Create();
   if (wres != 0)
     return HRESULT_FROM_WIN32(wres);
   wres = Semaphore.Create(&Synchro, (UInt32)numLockBlocks, maxCount);
   #else
-  wres = Semaphore.Create((UInt32)numLockBlocks, maxCount);
+  wres = Semaphore.OptCreateInit((UInt32)numLockBlocks, maxCount);
   #endif
   
   return HRESULT_FROM_WIN32(wres);
@@ -157,7 +157,7 @@ HRESULT CMemBlocks::WriteToStream(size_t blockSize, ISequentialOutStream *outStr
       curSize = (size_t)totalSize;
     if (blockIndex >= Blocks.Size())
       return E_FAIL;
-    RINOK(WriteStream(outStream, Blocks[blockIndex], curSize));
+    RINOK(WriteStream(outStream, Blocks[blockIndex], curSize))
     totalSize -= curSize;
   }
   return S_OK;
@@ -207,7 +207,7 @@ void CMemLockBlocks::Detach(CMemLockBlocks &blocks, CMemBlockManagerMt *memManag
       blocks.Blocks.Add(Blocks[i]);
     else
       FreeBlock(i, memManager);
-    Blocks[i] = 0;
+    Blocks[i] = NULL;
     totalSize += blockSize;
   }
   blocks.TotalSize = TotalSize;
